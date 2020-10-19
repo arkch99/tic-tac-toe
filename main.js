@@ -8,6 +8,7 @@ let gameBoard = (function (){
 	let players = [];
 	let currentPlayer = 0;
 	wonFlag = false;
+	drawflag = false;
 	gridCells = document.querySelectorAll(".grid-cell");
 	let setupBoard = function(){
 		console.log("In setupBoard...");
@@ -23,6 +24,7 @@ let gameBoard = (function (){
 		players.push(p2);
 		currentPlayer = 0;
 		wonFlag = false;
+		drawflag = false;
 		// add event listeners
 		gridCells.forEach(cell => {
 			cell.addEventListener("click", makeMove);
@@ -38,17 +40,37 @@ let gameBoard = (function (){
 		let player = players[currentPlayer];
 		let pName = player.name;
 		let pSym = player.sym;
-		if(!wonFlag)
+		if(!wonFlag && !drawflag)
 		{
 			dsp.textContent = `${pName}'s turn! (${pSym})`;
 		}
-		else
+		else if(wonFlag && !drawflag)
 		{
 			dsp.textContent = `${pName} wins!`;
+		}
+		else
+		{
+			dsp.textContent = "It's a draw!";
 		}
 	}
 
 	// TODO: implement draw detection
+
+	let isDraw = function()
+	{
+		for(let i = 0; i < 3; i++)
+		{
+			for(let j = 0; j < 3; j++)
+			{
+				if(matrix[i][j] == "")
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	let hasWonHorz = function(x)
 	{
 		let sym = matrix[x][0];
@@ -87,7 +109,7 @@ let gameBoard = (function (){
 			let diag2 = [matrix[0][2], matrix[1][1], matrix[2][0]];
 			diag1Set = new Set(diag1);
 			diag2Set = new Set(diag2);
-			if(diag1Set.has("") || diag2Set.has(""))
+			if(diag1Set.has("") && diag2Set.has(""))
 			{
 				return false;
 			}
@@ -95,16 +117,28 @@ let gameBoard = (function (){
 		}
 	}
 
+	let lockBoard = function()
+	{
+		gridCells.forEach(cell => {
+			cell.disabled = true;
+		});
+	}
+
 	let winCheck = function(x, y)
 	{
 		console.log(hasWonHorz(x) + " " + hasWonVert(y) + " " + hasWonDiag(x,y));
+		console.log(matrix);
 		let won = hasWonHorz(x) || hasWonVert(y) || hasWonDiag(x, y);
 		if(won)
 		{
-			gridCells.forEach(cell => {
-				cell.disabled = true;
-			});
+			lockBoard();
 			wonFlag = true;
+			updateDsp();
+		}
+		else if(isDraw())
+		{
+			wonFlag = false;
+			drawflag = true;
 			updateDsp();
 		}
 	}
