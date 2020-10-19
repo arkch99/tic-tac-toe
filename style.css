@@ -56,6 +56,39 @@ table td{
 	border: 5px solid black;
 }
 
+.name-contents{
+	position: absolute;
+	top:50%;
+	left:50%;
+	margin: -170px 0px 0px -70px;
+	font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.name-contents h1{
+	font-size: 30px;
+	padding-bottom: 30px;
+}
+
+.name-contents label{
+	font-size: 20px;
+	padding-right: 10px;
+}
+
+.name-contents input{
+	margin-bottom: 10px;
+}
+
+#name-btn{
+	height: 40px;
+	width:70px;
+	font-size:16px;
+	background-color: aliceblue;
+	border-style: solid;
+	border-color: black;
+	border-width: 2px;
+	margin-left: 50%;
+}
+
 .game-board{
 	height: 200px;
 	width: 200px;
