@@ -26,7 +26,18 @@ let gameBoard = (function (){
 			cell.textContent = "";
 			cell.disabled = false;
 		});
+		updateDsp();
 	}
+
+	let updateDsp = function()
+	{
+		let dsp = document.getElementById("turn-dsp");
+		let player = players[currentPlayer];
+		let pName = player.name;
+		let pSym = player.sym;
+		dsp.textContent = `${pName}'s turn! (${pSym})`;
+	}
+
 	// TODO: add win-checking function
 	let makeMove = function()
 	{
@@ -40,6 +51,7 @@ let gameBoard = (function (){
 		matrix[x][y] = sym;
 		currentPlayer = (currentPlayer + 1) % 2;
 		this.disabled = true;
+		updateDsp();
 	}
 
 	return {setupBoard: setupBoard};
