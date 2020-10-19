@@ -1,6 +1,6 @@
-function Player(name, sym)
+function Player(name, sym, color)
 {
-	return {name, sym};
+	return {name, sym, color};
 }
 
 let gameBoard = (function (){
@@ -10,6 +10,25 @@ let gameBoard = (function (){
 	wonFlag = false;
 	drawflag = false;
 	gridCells = document.querySelectorAll(".grid-cell");
+
+	let getNamesAndSetup = function()
+	{
+		let p1Name = document.getElementById("p1-input").value;
+		let p2Name = document.getElementById("p2-input").value;
+		console.log(p1Name);
+		console.log(p2Name);
+		let p1 = Player(p1Name, "X", "blue");
+		let p2 = Player(p2Name, "O", "red");
+		players = [];
+		players.push(p1);
+		players.push(p2);
+		let nameDiv = document.querySelector(".name-contents");
+		nameDiv.style.display = "none";
+		let gameDiv = document.querySelector(".game-contents");
+		gameDiv.style.display = "block";
+		setupBoard();
+	}
+
 	let setupBoard = function(){
 		console.log("In setupBoard...");
 		matrix = [];
@@ -17,11 +36,6 @@ let gameBoard = (function (){
 		{
 			matrix.push(["", "", ""]);
 		}
-		let p1 = Player("Player 1", "X");
-		let p2 = Player("Player 2", "O");
-		players = [];
-		players.push(p1);
-		players.push(p2);
 		currentPlayer = 0;
 		wonFlag = false;
 		drawflag = false;
@@ -53,8 +67,6 @@ let gameBoard = (function (){
 			dsp.textContent = "It's a draw!";
 		}
 	}
-
-	// TODO: implement draw detection
 
 	let isDraw = function()
 	{
@@ -149,6 +161,7 @@ let gameBoard = (function (){
 		// on click, checks current player, draws symbol, disables
 		console.log("In makeMove...");
 		let sym = players[currentPlayer].sym;
+		this.style.color = players[currentPlayer].color;
 		this.textContent = sym;
 		let x = Number(this.value.substring(0,1));
 		let y = Number(this.value.substring(1));
@@ -161,8 +174,10 @@ let gameBoard = (function (){
 			updateDsp();
 		}
 	}
-	return {setupBoard: setupBoard};
+	return {setupBoard: setupBoard, getNamesAndSetup: getNamesAndSetup};
 })();
 
 let ngButton = document.getElementById("rst");
+let nameButton = document.getElementById("name-btn");
 ngButton.onclick = gameBoard.setupBoard;
+nameButton.onclick = gameBoard.getNamesAndSetup;

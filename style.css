@@ -38,7 +38,8 @@ q:before, q:after {
 	content: none;
 }
 
-.contents{
+.game-contents{
+	display: none; /* will be changed by the JavaScript */
 	position: absolute;
 	top:50%;
 	left:50%;
@@ -69,7 +70,7 @@ table td{
 	background-color: white;
 	border-style: none;
 	font-size: 30px;
-	color: gray;
+	/*color: gray;*/
 }
 
 #turn-dsp{
