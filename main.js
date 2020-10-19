@@ -8,7 +8,7 @@ let gameBoard = (function (){
 	let players = [];
 	let currentPlayer = 0;
 	wonFlag = false;
-	drawflag = false;
+	drawFlag = false;
 	gridCells = document.querySelectorAll(".grid-cell");
 
 	let getNamesAndSetup = function()
@@ -38,7 +38,7 @@ let gameBoard = (function (){
 		}
 		currentPlayer = 0;
 		wonFlag = false;
-		drawflag = false;
+		drawFlag = false;
 		// add event listeners
 		gridCells.forEach(cell => {
 			cell.addEventListener("click", makeMove);
@@ -54,11 +54,11 @@ let gameBoard = (function (){
 		let player = players[currentPlayer];
 		let pName = player.name;
 		let pSym = player.sym;
-		if(!wonFlag && !drawflag)
+		if(!wonFlag && !drawFlag)
 		{
 			dsp.textContent = `${pName}'s turn! (${pSym})`;
 		}
-		else if(wonFlag && !drawflag)
+		else if(wonFlag && !drawFlag)
 		{
 			dsp.textContent = `${pName} wins!`;
 		}
@@ -150,7 +150,7 @@ let gameBoard = (function (){
 		else if(isDraw())
 		{
 			wonFlag = false;
-			drawflag = true;
+			drawFlag = true;
 			updateDsp();
 		}
 	}

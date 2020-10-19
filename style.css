@@ -100,10 +100,10 @@ table td{
 .grid-cell{
 	height: 70px;
 	width: 70px;
+	vertical-align: middle;
 	background-color: white;
 	border-style: none;
 	font-size: 30px;
-	/*color: gray;*/
 }
 
 #turn-dsp{
