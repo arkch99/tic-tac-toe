@@ -7,13 +7,18 @@
 	<body>
 		<div class="name-contents">
 			<h1>Enter your names:</h1>
-			<label for="p1">Player 1:</label>
+			<label for="p1-input">Player 1:</label>
 			<input type="text" id="p1-input" required>
+			<label for="ai-choice-1">Assign AI?</label>
+			<input type="radio" id="ai-choice-1" name="ai-choice" value="0">
 			<br>
-			<label for="p2">Player 2:</label>
+			<label for="p2-input">Player 2:</label>
 			<input type="text" id="p2-input" required>
+			<label for="ai-choice-2">Assign AI?</label>
+			<input type="radio" id="ai-choice-2" name="ai-choice" value="1">
 			<br>
-			<button type="button" id="name-btn">Start</button>
+			<button type="button" class="name-controls" id="name-btn">Start</button>
+			<button type="button" class="name-controls" id="clr-btn">Clear</button>
 		</div>
 		<div class="game-contents">
 			<!--Turn display, duh-->

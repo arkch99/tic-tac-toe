@@ -1,6 +1,6 @@
-function Player(name, sym, color)
+function Player(name, sym, color, ai)
 {
-	return {name, sym, color};
+	return {name, sym, color, ai};
 }
 
 let gameBoard = (function (){
@@ -9,7 +9,25 @@ let gameBoard = (function (){
 	let currentPlayer = 0;
 	wonFlag = false;
 	drawFlag = false;
+	hasAI = false;
 	gridCells = document.querySelectorAll(".grid-cell");
+
+	let setAI = function()
+	{
+		console.log("In setAI...");
+		console.log(this.id);
+	}
+
+	let clearDetails = function()
+	{
+		console.log("In clearDetails...");
+		let ips = document.querySelectorAll("input");
+		console.log(ips);
+		ips.forEach(ip => {
+			ip.value = "";
+			ip.checked = false;
+		});
+	}
 
 	let getNamesAndSetup = function()
 	{
@@ -17,11 +35,24 @@ let gameBoard = (function (){
 		let p2Name = document.getElementById("p2-input").value;
 		console.log(p1Name);
 		console.log(p2Name);
-		let p1 = Player(p1Name, "X", "blue");
-		let p2 = Player(p2Name, "O", "red");
+
+		let p1 = Player(p1Name, "X", "blue", false);
+		let p2 = Player(p2Name, "O", "red", false);
 		players = [];
 		players.push(p1);
 		players.push(p2);
+
+		let aiButtons = document.getElementsByName("ai-choice");
+		aiButtons.forEach(btn => {
+			if(btn.checked)
+			{
+				hasAI = true;
+				players[Number(btn.value)].ai = true;
+			}
+		});
+
+		console.log(players);
+
 		let nameDiv = document.querySelector(".name-contents");
 		nameDiv.style.display = "none";
 		let gameDiv = document.querySelector(".game-contents");
@@ -174,10 +205,12 @@ let gameBoard = (function (){
 			updateDsp();
 		}
 	}
-	return {setupBoard: setupBoard, getNamesAndSetup: getNamesAndSetup};
+	return {setupBoard: setupBoard, getNamesAndSetup: getNamesAndSetup, clearDetails:clearDetails };
 })();
 
 let ngButton = document.getElementById("rst");
 let nameButton = document.getElementById("name-btn");
+let clrButton = document.getElementById("clr-btn");
 ngButton.onclick = gameBoard.setupBoard;
 nameButton.onclick = gameBoard.getNamesAndSetup;
+clrButton.onclick = gameBoard.clearDetails;

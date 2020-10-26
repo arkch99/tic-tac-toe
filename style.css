@@ -78,15 +78,18 @@ table td{
 	margin-bottom: 10px;
 }
 
-#name-btn{
+.name-controls{
 	height: 40px;
 	width:70px;
 	font-size:16px;
 	background-color: aliceblue;
 	border-style: solid;
 	border-color: black;
+}
+
+#name-btn{
 	border-width: 2px;
-	margin-left: 50%;
+	margin-left: 40%;
 }
 
 .game-board{
