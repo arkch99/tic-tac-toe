@@ -3,6 +3,11 @@ function Player(name, sym, color, ai)
 	return {name, sym, color, ai};
 }
 
+function State(matrix, sym)
+{
+	return {matrix, sym};
+}
+
 let gameBoard = (function (){
 	let matrix = [];
 	let players = [];
@@ -12,11 +17,11 @@ let gameBoard = (function (){
 	hasAI = false;
 	gridCells = document.querySelectorAll(".grid-cell");
 
-	let setAI = function()
-	{
-		console.log("In setAI...");
-		console.log(this.id);
-	}
+	// let setAI = function()
+	// {
+	// 	console.log("In setAI...");
+	// 	console.log(this.id);
+	// }
 
 	let clearDetails = function()
 	{
@@ -77,6 +82,11 @@ let gameBoard = (function (){
 			cell.disabled = false;
 		});
 		updateDsp();
+		if(hasAI && players[0].ai)
+		{
+			console.log("Making first move as AI...");
+			makeMoveAI();
+		}
 	}
 
 	let updateDsp = function()
@@ -99,13 +109,13 @@ let gameBoard = (function (){
 		}
 	}
 
-	let isDraw = function()
+	let isDraw = function(currentMatrix)
 	{
 		for(let i = 0; i < 3; i++)
 		{
 			for(let j = 0; j < 3; j++)
 			{
-				if(matrix[i][j] == "")
+				if(currentMatrix[i][j] == "")
 				{
 					return false;
 				}
@@ -114,12 +124,12 @@ let gameBoard = (function (){
 		return true;
 	}
 
-	let hasWonHorz = function(x)
+	let hasWonHorz = function(currentMatrix, x)
 	{
-		let sym = matrix[x][0];
+		let sym = currentMatrix[x][0];
 		for(let i = 0; i < 3; i++)
 		{
-			if(matrix[x][i] != sym || sym == "")
+			if(currentMatrix[x][i] != sym || sym == "")
 			{
 				return false;
 			}
@@ -127,12 +137,12 @@ let gameBoard = (function (){
 		return true;
 	}
 
-	let hasWonVert = function(y)
+	let hasWonVert = function(currentMatrix, y)
 	{
-		sym = matrix[0][y];
+		let sym = currentMatrix[0][y];
 		for(let i = 0; i < 3; i++)
 		{
-			if(matrix[i][y] != sym || sym == "")
+			if(currentMatrix[i][y] != sym || sym == "")
 			{
 				return false;
 			}
@@ -140,18 +150,18 @@ let gameBoard = (function (){
 		return true;
 	}
 
-	let hasWonDiag = function(x, y)
+	let hasWonDiag = function(currentMatrix, x, y)
 	{
-		if((y == 1 && (x == 0 || x == 2)) || (x == 1 && (y == 0 || y == 2)) || matrix[x][y] == "")
+		if((y == 1 && (x == 0 || x == 2)) || (x == 1 && (y == 0 || y == 2)) || currentMatrix[x][y] == "")
 		{
 			return false;
 		}
 		else
 		{
-			let diag1 = [matrix[0][0], matrix[1][1], matrix[2][2]];
-			let diag2 = [matrix[0][2], matrix[1][1], matrix[2][0]];
-			diag1Set = new Set(diag1);
-			diag2Set = new Set(diag2);
+			let diag1 = [currentMatrix[0][0], currentMatrix[1][1], currentMatrix[2][2]];
+			let diag2 = [currentMatrix[0][2], currentMatrix[1][1], currentMatrix[2][0]];
+			let diag1Set = new Set(diag1);
+			let diag2Set = new Set(diag2);
 			if(diag1Set.has("") && diag2Set.has(""))
 			{
 				return false;
@@ -169,16 +179,16 @@ let gameBoard = (function (){
 
 	let winCheck = function(x, y)
 	{
-		console.log(hasWonHorz(x) + " " + hasWonVert(y) + " " + hasWonDiag(x,y));
+		console.log(hasWonHorz(matrix, x) + " " + hasWonVert(matrix, y) + " " + hasWonDiag(matrix, x,y));
 		console.log(matrix);
-		let won = hasWonHorz(x) || hasWonVert(y) || hasWonDiag(x, y);
+		let won = hasWonHorz(matrix, x) || hasWonVert(matrix, y) || hasWonDiag(matrix, x, y);
 		if(won)
 		{
 			lockBoard();
 			wonFlag = true;
 			updateDsp();
 		}
-		else if(isDraw())
+		else if(isDraw(matrix))
 		{
 			wonFlag = false;
 			drawFlag = true;
@@ -191,6 +201,7 @@ let gameBoard = (function (){
 		// is event listener for the buttons
 		// on click, checks current player, draws symbol, disables
 		console.log("In makeMove...");
+		console.log(matrix);
 		let sym = players[currentPlayer].sym;
 		this.style.color = players[currentPlayer].color;
 		this.textContent = sym;
@@ -203,8 +214,180 @@ let gameBoard = (function (){
 		{
 			currentPlayer = (currentPlayer + 1) % 2;
 			updateDsp();
+			if(hasAI && players[currentPlayer].ai)
+			{
+				console.log("About to call makeMoveAI...");
+				console.log(matrix);
+				makeMoveAI();
+			}
 		}
 	}
+
+	let matCopy = function(mat)
+	{
+		newMat = []
+		mat.forEach(subArr => {
+			newMat.push(subArr.slice());
+		})
+		return newMat;
+	}
+
+	let utility = function(stateObj) // 1 if MAX wins, -1 if MIN wins, 0 for draw, 2 if non-terminal
+	{
+		for(let i = 0; i < 3; i++)
+		{
+			if(hasWonHorz(stateObj.matrix, i))
+			{
+				if(stateObj.matrix[i][0] == "X")
+				{
+					return 1;
+				}
+				else
+				{
+					return -1;
+				}
+			}
+		}
+		for(let j = 0; j < 3; j++)
+		{
+			if(hasWonVert(stateObj.matrix, j))
+			{
+				if(stateObj.matrix[0][j] == "X")
+				{
+					return 1;
+				}
+				else
+				{
+					return -1;
+				}
+			}
+		}
+		if(hasWonDiag(stateObj.matrix, 1,1))
+		{
+			if(stateObj.matrix[1][1] == "X")
+			{
+				return 1;
+			}
+			else
+			{
+				return -1;
+			}
+		}
+		if(isDraw(stateObj.matrix))
+		{
+			return 0;
+		}
+		return 2;
+	}
+
+	let actions = function(stateObj)
+	{
+		let moves = [];
+		for(let i = 0; i < 3; i++)
+		{
+			for(let j = 0; j < 3; j++)
+			{
+				if(stateObj.matrix[i][j] == "")
+				{
+					moves.push([i, j]);
+				}
+			}
+		}
+		return moves;
+	}
+
+	let result = function(stateObj, move)
+	{
+		let newSym = "O";
+		if(stateObj.sym == "O")
+		{
+			newSym = "X";
+		}
+		let newState = State(matCopy(stateObj.matrix), newSym);
+		newState.matrix[move[0]][move[1]] = stateObj.sym;
+		return newState;
+	}
+
+	let maxMove = function(stateObj, prevAction)
+	{
+		//console.log("In maxMove...");
+		//console.log(matrix);
+		let util = utility(stateObj)
+		if(util != 2)
+		{
+			return [util, prevAction];
+		}
+		let v = -Infinity;
+		let bestAction = [];
+		let actionList = actions(stateObj);
+		actionList.forEach(action => {
+			let newV = minMove(result(stateObj, action), action)[0];
+			if(newV > v)
+			{
+				v = newV;
+				bestAction = action.slice();
+			}
+		});
+		return [v, bestAction];
+	}
+
+	let minMove = function(stateObj, prevAction)
+	{
+		//console.log("In minMove...");
+		//console.log(matrix);
+		let util = utility(stateObj);
+		if(util != 2)
+		{
+			return [util, prevAction];
+		}
+		let v = Infinity;
+		let bestAction = [];
+		let actionList = actions(stateObj);
+		actionList.forEach(action => {
+			let newV = maxMove(result(stateObj, action), action)[0];
+			if(newV < v)
+			{
+				v = newV;
+				bestAction = action.slice();
+			}
+		});
+		return [v, bestAction];
+	}
+
+	let makeMoveAI = function()
+	{
+		console.log("Tremble before the AI!");
+		console.log(matrix);
+		let move = [];
+		let currentSym = players[currentPlayer].sym;
+		let currentState = State(matCopy(matrix), currentSym);
+		//console.log(matrix);
+		if(currentPlayer == 0)
+		{
+			move = maxMove(currentState, []);
+		}
+		else
+		{
+			move = minMove(currentState, []);
+		}
+		console.log(move);
+		let cellCoords = move[1].join("");
+		console.log(cellCoords);
+		//console.log(`button[value="${cellCoords}]"`);
+		let cellToMove = document.querySelector(`button[value="${cellCoords}"]`);
+		matrix[move[1][0]][move[1][1]] = currentSym;
+		cellToMove.textContent = currentSym;
+		cellToMove.disabled = true;
+		cellToMove.style.color = players[currentPlayer].color;
+		console.log(matrix);
+		winCheck(move[1][0], move[1][1]);
+		if(!wonFlag)
+		{
+			currentPlayer = (currentPlayer + 1) % 2;
+			updateDsp();
+		}
+	}
+
 	return {setupBoard: setupBoard, getNamesAndSetup: getNamesAndSetup, clearDetails:clearDetails };
 })();
 
