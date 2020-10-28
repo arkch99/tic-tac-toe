@@ -17,12 +17,6 @@ let gameBoard = (function (){
 	hasAI = false;
 	gridCells = document.querySelectorAll(".grid-cell");
 
-	// let setAI = function()
-	// {
-	// 	console.log("In setAI...");
-	// 	console.log(this.id);
-	// }
-
 	let clearDetails = function()
 	{
 		console.log("In clearDetails...");
@@ -210,7 +204,7 @@ let gameBoard = (function (){
 		matrix[x][y] = sym;
 		this.disabled = true;
 		winCheck(x, y);
-		if(!wonFlag)
+		if(!wonFlag && !drawFlag)
 		{
 			currentPlayer = (currentPlayer + 1) % 2;
 			updateDsp();
@@ -310,8 +304,6 @@ let gameBoard = (function (){
 
 	let maxMove = function(stateObj, prevAction)
 	{
-		//console.log("In maxMove...");
-		//console.log(matrix);
 		let util = utility(stateObj)
 		if(util != 2)
 		{
@@ -333,8 +325,6 @@ let gameBoard = (function (){
 
 	let minMove = function(stateObj, prevAction)
 	{
-		//console.log("In minMove...");
-		//console.log(matrix);
 		let util = utility(stateObj);
 		if(util != 2)
 		{
@@ -357,11 +347,10 @@ let gameBoard = (function (){
 	let makeMoveAI = function()
 	{
 		console.log("Tremble before the AI!");
-		console.log(matrix);
 		let move = [];
 		let currentSym = players[currentPlayer].sym;
 		let currentState = State(matCopy(matrix), currentSym);
-		//console.log(matrix);
+
 		if(currentPlayer == 0)
 		{
 			move = maxMove(currentState, []);
@@ -370,10 +359,11 @@ let gameBoard = (function (){
 		{
 			move = minMove(currentState, []);
 		}
-		console.log(move);
+		console.log("The AI made this move:")
+		console.log({move});
 		let cellCoords = move[1].join("");
 		console.log(cellCoords);
-		//console.log(`button[value="${cellCoords}]"`);
+
 		let cellToMove = document.querySelector(`button[value="${cellCoords}"]`);
 		matrix[move[1][0]][move[1][1]] = currentSym;
 		cellToMove.textContent = currentSym;
